@@ -9,3 +9,4 @@ class clean_csv:
         self.db = pd.read_csv(path)
 
     import_csv("C:/Users/jenny/Documents/GitHub/python_programmering/Assignment/vaccin_covid.csv")
+    
