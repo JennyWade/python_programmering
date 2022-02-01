@@ -1,11 +1,10 @@
-from Inlämning.Classes import CleanCSV
+import Classes
 
 if __name__ == "__main__":
-    covid = CleanCSV("vaccin_covid.csv")
+    covid = Classes.CleanCSV("Inlämning/vaccin_covid.csv")
 
     covid._split_to_list('vaccines')
 
     covid._remove(["vaccines", "daily_vaccinations_raw"])
 
-    covid._createDatabase('covid', 'Covid.db')
-    
+    covid._createDatabase('covid.db', 'covid.db')
