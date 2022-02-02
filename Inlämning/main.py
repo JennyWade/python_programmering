@@ -3,8 +3,7 @@ import Classes
 if __name__ == "__main__":
     covid = Classes.CleanCSV("Inlämning/vaccin_covid.csv")
 
-    covid._split_to_list('vaccines')
+    covid.add_and_fill_vacc_col()
+    covid.remove_columns(["vaccines", "daily_vaccinations_raw"])
 
-    covid._remove(["vaccines", "daily_vaccinations_raw"])
-
-    covid._createDatabase('covid.db', 'covid.db')
+    covid.createDatabase('CovidVacc.db', 'CovidVacc')
