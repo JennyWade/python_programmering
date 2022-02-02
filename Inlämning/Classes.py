@@ -41,8 +41,75 @@ class CleanCSV:
       
 
 class DatabaseManagement:
-    def connect_to_db(self, db):
-        self.db = db
-        self.db = sqlite3.connect(db)
-        cur = self.db.cursor()
+    def __init__(self, name):
+        self.db = sqlite3.connect(name)
+        self.cur = self.db.cursor()
+
+    def create_tables(self):
+        self.cur.execute("""CREATE TABLE Daily_Vaccine_Data(
+                        iso_code text,
+                        date text,
+                        country text,
+                        daily_vaccinations integer,
+                        daily_vaccinations_per_million,
+                        PRIMARY KEY(iso_code, date)
+                        FOREIGN KEY(country) REFERENCES Country_Source(country))""")
+        self.cur.execute("""CREATE TABLE Country_Source(
+                        country text PRIMARY KEY, 
+                        source_name text, 
+                        source_website text)""")
+        self.cur.execute("""CREATE TABLE Country_Vaccines(
+                        country text PRIMARY KEY, Johnson_and_Johnson integer, 
+                        Oxford_AstraZeneca integer, Sinovac integer,
+                        Sputnik_V integer, Moderna integer, 
+                        Sinopharm_Beijing integer, Covaxin integer, 
+                        CanSino integer, Abdala integer, 
+                        Pfizer_BioNTech integer, QazVac integer, 
+                        EpiVacCorona integer, Soberana02 integer, 
+                        Sinopharm_HayatVax integer, RBDDimer integer, 
+                        Sinopharm_Wuhan integer,
+                        FOREIGN KEY(country) REFERENCES Country_Source(country))""")
+        self.cur.execute("""CREATE TABLE Country_Total(
+                        iso_code text,
+                        date text,
+                        country text,
+                        total_vaccinations integer, 
+                        people_vaccinated integer, 
+                        people_fully_vaccinated integer,
+                        total_vaccinations_per_hundred real, 
+                        people_vaccinated_per_hundred real, 
+                        people_fully_vaccinated_per_hundred real,
+                        PRIMARY KEY (iso_code, date)
+                        FOREIGN KEY(country) REFERENCES Country_Source(country))""")
+        self.cur.execute("""CREATE TABLE Daily_Vaccine_Data_data AS SELECT
+                        iso_code, date, country, daily_vaccinations, daily_vaccinations_per_million
+                        FROM CovidVacc""")
+        self.cur.execute("""CREATE TABLE Country_Source_data
+                        AS SELECT DISTINCT country, source_name, source_website 
+                        FROM CovidVacc""")
+        self.cur.execute("""CREATE TABLE Country_vaccines_data AS SELECT DISTINCT country, 
+                        Johnson_and_Johnson, Oxford_AstraZeneca, Sinovac, Sputnik_V, Moderna, 
+                        Sinopharm_Beijing, Covaxin, CanSino, Abdala, Pfizer_BioNTech, QazVac, 
+                        EpiVacCorona, Soberana02, Sinopharm_HayatVax, RBD_Dimer, Sinopharm_Wuhan 
+                        FROM CovidVacc""")
+        self.cur.execute("""CREATE TABLE Country_Total_data AS SELECT DISTINCT iso_code, date, country, total_vaccinations, people_vaccinated,
+                        people_fully_vaccinated, total_vaccinations_per_hundred, people_vaccinated_per_hundred,
+                        people_fully_vaccinated_per_hundred FROM CovidVacc""")
+        self.db.commit()
+    
+    def insert_data_to_tables(self):
+        self.cur.execute("""INSERT INTO Country_Source SELECT * FROM Country_Source_data""")
+        self.cur.execute("""INSERT INTO Daily_Vaccine_Data SELECT * FROM Daily_Vaccine_Data_data""")
+        self.cur.execute("""INSERT INTO Country_Vaccines SELECT * FROM Country_vaccines_data""")
+        self.cur.execute("""INSERT INTO Country_Total SELECT * FROM Country_Total_data """)
+        self.db.commit()
+
+    def drop_tables(self):
+        self.cur.execute("DROP TABLE Daily_Vaccine_Data_data")
+        self.cur.execute("DROP TABLE Country_Source_data")
+        self.cur.execute("DROP TABLE Country_vaccines_data")
+        self.cur.execute("DROP TABLE Country_total_data")
+        self.cur.execute("DROP TABLE CovidVacc")
+        self.db.commit()
+        
 
