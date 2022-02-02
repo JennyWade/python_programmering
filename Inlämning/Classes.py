@@ -11,23 +11,27 @@ class CleanCSV:
         self.df = pd.read_csv(csv_path)
 
     def add_and_fill_vacc_col(self):
-        self.df["JohnsonAndJohnson"] = self.df["vaccines"].str.contains("Johnson&Johnson") 
-        self.df["OxfordAstraZeneca"] = self.df["vaccines"].str.contains("Oxford/AstraZeneca") 
+        self.df["Johnson_and_Johnson"] = self.df["vaccines"].str.contains("Johnson&Johnson") 
+        self.df["Oxford_AstraZeneca"] = self.df["vaccines"].str.contains("Oxford/AstraZeneca") 
         self.df["Sinovac"] = self.df["vaccines"].str.contains("Sinovac") 
-        self.df["SputnikV"] = self.df["vaccines"].str.contains("Sputnik V") 
+        self.df["Sputnik_V"] = self.df["vaccines"].str.contains("Sputnik V") 
         self.df["Moderna"] = self.df["vaccines"].str.contains("Moderna") 
-        self.df["SinopharmBeijing"] = self.df["vaccines"].str.contains("Sinopharm/Beijing") 
+        self.df["Sinopharm_Beijing"] = self.df["vaccines"].str.contains("Sinopharm/Beijing") 
         self.df["Covaxin"] = self.df["vaccines"].str.contains("Covaxin") 
         self.df["CanSino"] = self.df["vaccines"].str.contains("CanSino") 
         self.df["Abdala"] = self.df["vaccines"].str.contains("Abdala") 
-        self.df["PfizerBioNTech"] = self.df["vaccines"].str.contains("Pfizer/BioNTech") 
+        self.df["Pfizer_BioNTech"] = self.df["vaccines"].str.contains("Pfizer/BioNTech") 
         self.df["QazVac"] = self.df["vaccines"].str.contains("QazVac") 
         self.df["EpiVacCorona"] = self.df["vaccines"].str.contains("EpiVacCorona") 
         self.df["Soberana02"] = self.df["vaccines"].str.contains("Soberana02") 
-        self.df["SinopharmHayatVax"] = self.df["vaccines"].str.contains("Sinopharm/HayatVax") 
-        self.df["RBDDimer"] = self.df["vaccines"].str.contains("RBD-Dimer") 
-        self.df["SinopharmWuhan"] = self.df["vaccines"].str.contains("Sinopharm/Wuhan") 
-                
+        self.df["Sinopharm_HayatVax"] = self.df["vaccines"].str.contains("Sinopharm/HayatVax") 
+        self.df["RBD_Dimer"] = self.df["vaccines"].str.contains("RBD-Dimer") 
+        self.df["Sinopharm_Wuhan"] = self.df["vaccines"].str.contains("Sinopharm/Wuhan") 
+
+    def new_combined_col(self):
+        new_col = self.df['iso_code'] + ' ' + self.df['date']
+        self.df.insert(0, 'iso_date', new_col)
+
     def remove_columns(self, col_todrop):
         #Remove columns
         self.col_todrop = self.df.drop(col_todrop, axis=1, inplace=True)
@@ -46,4 +50,3 @@ class DatabaseManagement:
         self.db = sqlite3.connect(db)
         cur = self.db.cursor()
 
-    def
