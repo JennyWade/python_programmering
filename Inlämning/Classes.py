@@ -28,10 +28,6 @@ class CleanCSV:
         self.df["RBD_Dimer"] = self.df["vaccines"].str.contains("RBD-Dimer") 
         self.df["Sinopharm_Wuhan"] = self.df["vaccines"].str.contains("Sinopharm/Wuhan") 
 
-    def new_combined_col(self):
-        new_col = self.df['iso_code'] + ' ' + self.df['date']
-        self.df.insert(0, 'iso_date', new_col)
-
     def remove_columns(self, col_todrop):
         #Remove columns
         self.col_todrop = self.df.drop(col_todrop, axis=1, inplace=True)
