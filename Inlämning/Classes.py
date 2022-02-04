@@ -1,16 +1,18 @@
 from importlib.resources import path
-from argparse import ArgumentParser
+from matplotlib.pyplot import connect
 import pandas as pd
 import numpy as np
-import seaborn as sns
-import sqlite3
+import matplotlib.pyplot as plt
+import sqlite3 as sql
 
 class CleanCSV:
 
-    def __init__(self, csv_path):
+    def __init__(self, csv_path): 
+        #Reads csv provided
         self.df = pd.read_csv(csv_path)
 
-    def add_and_fill_vacc_col(self):
+    def _add_and_fill_vacc_col(self): 
+        #Adding all unique vaccines found in 'vaccines' col with rows returning boolean value
         self.df["Johnson_and_Johnson"] = self.df["vaccines"].str.contains("Johnson&Johnson") 
         self.df["Oxford_AstraZeneca"] = self.df["vaccines"].str.contains("Oxford/AstraZeneca") 
         self.df["Sinovac"] = self.df["vaccines"].str.contains("Sinovac") 
@@ -34,18 +36,22 @@ class CleanCSV:
         self.df = self.df.fillna(0)
 
     def createDatabase(self, db, name):
+        #Creates our database using name provided
         self.db = db
-        self.db = sqlite3.connect(db)
+        self.db = sql.connect(db)
         self.name = name
         self.df.to_sql(self.name, self.db)
       
 
 class DatabaseManagement:
     def __init__(self, name):
-        self.db = sqlite3.connect(name)
+        #Connect to database and create cursor
+        self.db = sql.connect(name)
         self.cur = self.db.cursor()
 
     def create_tables(self):
+        #Creating all new tables for a relational database
+        #Also creating 'dummy' table with the data I need for each table
         self.cur.execute("""CREATE TABLE Daily_Vaccine_Data(
                         iso_code text,
                         date text,
@@ -98,6 +104,7 @@ class DatabaseManagement:
         self.db.commit()
     
     def insert_data_to_tables(self):
+        #Inserting all the data from the 'dummy' tables into my actual ones
         self.cur.execute("""INSERT INTO Country_Source SELECT * FROM Country_Source_data""")
         self.cur.execute("""INSERT INTO Daily_Vaccine_Data SELECT * FROM Daily_Vaccine_Data_data""")
         self.cur.execute("""INSERT INTO Country_Vaccines SELECT * FROM Country_vaccines_data""")
@@ -105,11 +112,33 @@ class DatabaseManagement:
         self.db.commit()
 
     def drop_tables(self):
+        #Dropping all the 'dummy' tables along with the original table containing all data
         self.cur.execute("DROP TABLE Daily_Vaccine_Data_data")
         self.cur.execute("DROP TABLE Country_Source_data")
         self.cur.execute("DROP TABLE Country_vaccines_data")
         self.cur.execute("DROP TABLE Country_total_data")
         self.cur.execute("DROP TABLE CovidVacc")
         self.db.commit()
-        
 
+class VisualiseData:
+    def __init__(self, name):
+        #Connect to database
+        self.db = sql.connect(name)
+        self.cur = self.db.cursor()  
+        
+    def extract_desc_daily_data(self):
+        #Create dataframe from query
+        self.results = pd.read_sql_query("""SELECT date, country, daily_vaccinations FROM Daily_Vaccine_Data WHERE Country LIKE 'Sweden' AND date like '2021%'""", self.db)
+    
+    def plot_query(self):
+        #Plot above dataframe
+        plt.plot('date', 'daily_vaccinations', data=self.results)
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+        plt.xticks(np.linspace(0,221,8), months)
+        plt.title('Sweden daily vaccinations between Jan-Aug 2021')
+        plt.show()
+        
+    def vaccine_country(self):
+        self.results2 = pd.read_sql_query("""SELECT COUNT (Moderna) FROM Country_Vaccines WHERE Moderna = '1'""", self.db)
+        print(self.results2)
+    
