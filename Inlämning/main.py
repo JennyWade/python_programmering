@@ -14,8 +14,9 @@ if __name__ == "__main__":
     covid_vaccine_db.drop_tables()
 
     covid_vacc = Classes.VisualiseData('CovidVacc.db')
-    #covid_vacc.extract_desc_daily_data()
+    covid_vacc.extract_desc_daily_data()
     #covid_vacc.plot_query()
-    covid_vacc.vaccine_country()
+    covid_vacc.plot_query_2()
+    #covid_vacc.vaccine_country()
 
   

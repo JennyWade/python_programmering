@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3 as sql
+import altair as alt
+import altair_viewer
 
 class CleanCSV:
 
@@ -137,6 +139,11 @@ class VisualiseData:
         plt.xticks(np.linspace(0,221,8), months)
         plt.title('Sweden daily vaccinations between Jan-Aug 2021')
         plt.show()
+
+    def plot_query_2(self):
+        self.chart = alt.Chart(self.results).mark_line().encode(
+        x = 'date',
+        y='daily_vaccinations').show()
         
     def vaccine_country(self):
         self.results2 = pd.read_sql_query("""SELECT COUNT (Moderna) FROM Country_Vaccines WHERE Moderna = '1'""", self.db)
